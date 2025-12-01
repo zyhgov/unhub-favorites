@@ -85,7 +85,7 @@ const AboutModal = ({ isOpen, onClose }) => {
           {/* Logo */}
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="w-20 h-20 bg-white rounded-2xl shadow-lg flex items-center justify-center p-2">
-              <img src="/logo.svg" alt="UNHub" className="w-full h-full" />
+              <img src="/unhub.svg" alt="UNHub" className="w-full h-full" />
             </div>
           </div>
           
