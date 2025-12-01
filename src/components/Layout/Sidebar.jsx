@@ -11,6 +11,7 @@ import {
   HiOutlineWrenchScrewdriver,
   HiOutlineBookOpen,
   HiOutlineShoppingCart,
+  HiOutlineBriefcase,
   HiOutlineInformationCircle,
   HiOutlineChevronDoubleLeft,
   HiOutlineChevronDoubleRight,
@@ -29,6 +30,7 @@ const iconMap = {
   wrench: HiOutlineWrenchScrewdriver,
   book: HiOutlineBookOpen,
   cart: HiOutlineShoppingCart,
+  work: HiOutlineBriefcase,
 }
 
 const Sidebar = ({ 

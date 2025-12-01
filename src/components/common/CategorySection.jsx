@@ -12,6 +12,7 @@ import {
   HiOutlineWrenchScrewdriver,
   HiOutlineBookOpen,
   HiOutlineShoppingCart,
+  HiOutlineBriefcase,
   HiOutlineChevronRight,
 } from 'react-icons/hi2'
 
@@ -26,6 +27,7 @@ const iconMap = {
   wrench: HiOutlineWrenchScrewdriver,
   book: HiOutlineBookOpen,
   cart: HiOutlineShoppingCart,
+  work: HiOutlineBriefcase,
 }
 
 const CategorySection = ({ category, sites, onViewAll }) => {

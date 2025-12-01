@@ -10,6 +10,7 @@ export const categories = [
   { id: 'tools', name: '实用工具', icon: 'wrench' },
   { id: 'learning', name: '学习教育', icon: 'book' },
   { id: 'shopping', name: '购物电商', icon: 'cart' },
+  { id: 'work', name: '工作网站', icon: 'work' },
 ]
 
 // 网站数据
@@ -327,5 +328,14 @@ export const sites = [
     image: 'https://www.jd.com/favicon.ico',
     category: 'shopping',
     tags: ['购物', '电商', '快递'],
+  },
+  {
+    id: 83,
+    title: '若善云系统',
+    subtitle: '正式服务',
+    url: 'https://rsc.rsjk.org.cn',
+    image: 'https://cf-r2.zyhorg.ac.cn/images/1764594158571-g0gkrw-logo.png',
+    category: 'work',
+    tags: ['工作', '若善', '系统'],
   },
 ]
