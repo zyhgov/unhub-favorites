@@ -6,11 +6,50 @@ import {
   HiOutlineAdjustmentsHorizontal,
   HiOutlineChevronDown,
   HiOutlineChevronUp,
+  HiOutlineSquares2X2,
+  HiOutlineCpuChip,
+  HiOutlineAcademicCap,
+  HiOutlineCodeBracket,
+  HiOutlineCommandLine,
+  HiOutlinePaintBrush,
+  HiOutlinePlayCircle,
+  HiOutlineUserGroup,
+  HiOutlineNewspaper,
+  HiOutlineWrenchScrewdriver,
+  HiOutlineBookOpen,
+  HiOutlineShoppingCart,
+  HiOutlineStar,
+  HiOutlineBuildingOffice,
+  HiOutlineBriefcase,
+  HiOutlineFolder,
 } from 'react-icons/hi2'
-import { sites } from '../../data/sites'
+
+// 图标映射
+const iconMap = {
+  grid: HiOutlineSquares2X2,
+  cpu: HiOutlineCpuChip,
+  academic: HiOutlineAcademicCap,
+  code: HiOutlineCodeBracket,
+  terminal: HiOutlineCommandLine,
+  palette: HiOutlinePaintBrush,
+  play: HiOutlinePlayCircle,
+  users: HiOutlineUserGroup,
+  newspaper: HiOutlineNewspaper,
+  wrench: HiOutlineWrenchScrewdriver,
+  book: HiOutlineBookOpen,
+  cart: HiOutlineShoppingCart,
+  star: HiOutlineStar,
+  building: HiOutlineBuildingOffice,
+  briefcase: HiOutlineBriefcase,
+  folder: HiOutlineFolder,
+}
 
 const SearchBar = ({ 
-  onSearch, 
+  onSearch,
+  allTags = [],
+  categories = [],
+  activeCategory = 'all',
+  onCategoryChange,
   placeholder = "搜索网站名称、分类或关键词..." 
 }) => {
   const [query, setQuery] = useState('')
@@ -21,29 +60,15 @@ const SearchBar = ({
   const containerRef = useRef(null)
   const advancedRef = useRef(null)
 
-  // 从 sites 数据中动态提取所有标签并统计数量
-  const allTags = useMemo(() => {
-    const tagCount = {}
-    sites.forEach(site => {
-      site.tags.forEach(tag => {
-        tagCount[tag] = (tagCount[tag] || 0) + 1
-      })
-    })
-    // 按使用频率排序
-    return Object.entries(tagCount)
-      .sort((a, b) => b[1] - a[1])
-      .map(([tag, count]) => ({ tag, count }))
-  }, [])
-
-  // 热门标签（取前12个）
+  // 使用数据库的标签
   const popularTags = useMemo(() => {
-    return allTags.slice(0, 12)
+    return allTags.slice(0, 20)
   }, [allTags])
 
-  // 快捷搜索（取热门网站标题）
-  const quickSearchItems = useMemo(() => {
-    return sites.slice(0, 5).map(site => site.title)
-  }, [])
+  // 过滤分类（排除"全部"）
+  const filterCategories = useMemo(() => {
+    return categories.filter(c => c.id !== 'all')
+  }, [categories])
 
   useEffect(() => {
     if (containerRef.current) {
@@ -77,6 +102,9 @@ const SearchBar = ({
     setQuery('')
     setSelectedTags([])
     onSearch('', [])
+    if (onCategoryChange) {
+      onCategoryChange('all')
+    }
     inputRef.current?.focus()
   }
 
@@ -88,12 +116,14 @@ const SearchBar = ({
     onSearch(query, newTags)
   }
 
-  const handleQuickSearch = (value) => {
-    setQuery(value)
-    onSearch(value, selectedTags)
-    setIsFocused(false)
-    inputRef.current?.blur()
+  const handleCategoryClick = (categoryId) => {
+    if (onCategoryChange) {
+      onCategoryChange(categoryId)
+    }
   }
+
+  // 计算已选筛选条件数量
+  const filterCount = selectedTags.length + (activeCategory !== 'all' ? 1 : 0)
 
   return (
     <div className="w-full">
@@ -127,17 +157,17 @@ const SearchBar = ({
                        placeholder:text-apple-gray-dark/60 font-normal text-sm md:text-base"
           />
           
-          {/* 已选标签数量 */}
-          {selectedTags.length > 0 && (
+          {/* 筛选条件数量 */}
+          {filterCount > 0 && (
             <div className="px-2">
               <span className="px-2 py-0.5 bg-apple-blue text-white text-xs rounded-full font-medium">
-                {selectedTags.length}
+                {filterCount}
               </span>
             </div>
           )}
           
           {/* 清除按钮 */}
-          {(query || selectedTags.length > 0) && (
+          {(query || filterCount > 0) && (
             <button
               onClick={handleClear}
               className="px-2 text-apple-gray-dark hover:text-apple-black transition-colors"
@@ -151,7 +181,7 @@ const SearchBar = ({
             onClick={() => setShowAdvanced(!showAdvanced)}
             className={`px-3 py-1.5 mr-2 rounded-xl flex items-center gap-1 text-sm font-medium
                        transition-colors duration-200 ${
-                         showAdvanced 
+                         showAdvanced || filterCount > 0
                            ? 'bg-apple-blue text-white' 
                            : 'bg-apple-gray-light text-apple-gray-dark hover:bg-apple-gray-medium'
                        }`}
@@ -173,112 +203,151 @@ const SearchBar = ({
         className="overflow-hidden"
         style={{ height: 0, opacity: 0 }}
       >
-        <div className="mt-3 p-4 bg-white rounded-2xl shadow-sm border border-black/5">
+        <div className="mt-3 p-4 bg-white rounded-2xl shadow-sm border border-black/5 space-y-5">
+          
+          {/* 分类筛选 */}
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <h4 className="text-sm font-semibold text-apple-black">分类导航</h4>
+              <span className="text-xs text-apple-gray-dark">共 {filterCategories.length} 个分类</span>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {/* 全部按钮 */}
+              <button
+                onClick={() => handleCategoryClick('all')}
+                className={`px-3 py-1.5 rounded-xl text-sm font-medium transition-all duration-200 
+                           flex items-center gap-1.5 ${
+                  activeCategory === 'all'
+                    ? 'bg-apple-blue text-white shadow-sm'
+                    : 'bg-apple-gray-light text-apple-gray-dark hover:bg-apple-gray-medium'
+                }`}
+              >
+                <HiOutlineSquares2X2 className="w-4 h-4" />
+                全部
+              </button>
+              
+              {/* 分类列表 */}
+              {filterCategories.map((category) => {
+                const IconComponent = iconMap[category.icon] || HiOutlineSquares2X2
+                const isActive = activeCategory === category.id
+                
+                return (
+                  <button
+                    key={category.id}
+                    onClick={() => handleCategoryClick(category.id)}
+                    className={`px-3 py-1.5 rounded-xl text-sm font-medium transition-all duration-200 
+                               flex items-center gap-1.5 ${
+                      isActive
+                        ? 'bg-apple-blue text-white shadow-sm'
+                        : 'bg-apple-gray-light text-apple-gray-dark hover:bg-apple-gray-medium'
+                    }`}
+                  >
+                    <IconComponent className="w-4 h-4" />
+                    {category.name}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+
+          {/* 分割线 */}
+          <div className="border-t border-black/5" />
+
           {/* 标签筛选 */}
-          <div className="mb-4">
+          <div>
             <div className="flex items-center justify-between mb-3">
               <h4 className="text-sm font-semibold text-apple-black">热门标签</h4>
               <span className="text-xs text-apple-gray-dark">共 {allTags.length} 个标签</span>
             </div>
-            <div className="flex flex-wrap gap-2">
-              {popularTags.map(({ tag, count }) => (
-                <button
-                  key={tag}
-                  onClick={() => handleTagClick(tag)}
-                  className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-200 
-                             flex items-center gap-1.5 ${
-                    selectedTags.includes(tag)
-                      ? 'bg-apple-blue text-white shadow-sm'
-                      : 'bg-apple-gray-light text-apple-gray-dark hover:bg-apple-gray-medium'
-                  }`}
-                >
-                  {tag}
-                  <span className={`text-xs ${
-                    selectedTags.includes(tag) ? 'text-white/70' : 'text-apple-gray-dark/50'
-                  }`}>
-                    {count}
-                  </span>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* 快捷搜索 */}
-          <div>
-            <h4 className="text-sm font-semibold text-apple-black mb-3">快捷搜索</h4>
-            <div className="flex flex-wrap gap-2">
-              {quickSearchItems.map((item) => (
-                <button
-                  key={item}
-                  onClick={() => handleQuickSearch(item)}
-                  className="px-3 py-1.5 bg-white border border-apple-gray-dark/20 rounded-full 
-                             text-sm text-apple-gray-dark hover:border-apple-blue hover:text-apple-blue
-                             transition-colors duration-200"
-                >
-                  {item}
-                </button>
-              ))}
-            </div>
+            {popularTags.length > 0 ? (
+              <div className="flex flex-wrap gap-2">
+                {popularTags.map(({ tag, count }) => (
+                  <button
+                    key={tag}
+                    onClick={() => handleTagClick(tag)}
+                    className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-200 
+                               flex items-center gap-1.5 ${
+                      selectedTags.includes(tag)
+                        ? 'bg-apple-blue text-white shadow-sm'
+                        : 'bg-apple-gray-light text-apple-gray-dark hover:bg-apple-gray-medium'
+                    }`}
+                  >
+                    {tag}
+                    <span className={`text-xs ${
+                      selectedTags.includes(tag) ? 'text-white/70' : 'text-apple-gray-dark/50'
+                    }`}>
+                      {count}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-apple-gray-dark">暂无标签数据</p>
+            )}
           </div>
 
           {/* 已选筛选条件 */}
-          {selectedTags.length > 0 && (
-            <div className="mt-4 pt-4 border-t border-black/5">
-              <div className="flex items-center justify-between flex-wrap gap-2">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-sm text-apple-gray-dark">已选:</span>
-                  {selectedTags.map((tag) => (
-                    <span 
-                      key={tag}
-                      className="inline-flex items-center gap-1 px-2 py-1 bg-apple-blue/10 
-                                 text-apple-blue rounded-md text-sm"
-                    >
-                      {tag}
-                      <button 
-                        onClick={() => handleTagClick(tag)}
-                        className="hover:bg-apple-blue/20 rounded p-0.5"
+          {filterCount > 0 && (
+            <>
+              <div className="border-t border-black/5" />
+              <div>
+                <div className="flex items-center justify-between flex-wrap gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-sm text-apple-gray-dark">已选条件:</span>
+                    
+                    {/* 已选分类 */}
+                    {activeCategory !== 'all' && (
+                      <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-100 
+                                     text-green-700 rounded-md text-sm">
+                        {(() => {
+                          const cat = categories.find(c => c.id === activeCategory)
+                          const IconComponent = iconMap[cat?.icon] || HiOutlineSquares2X2
+                          return (
+                            <>
+                              <IconComponent className="w-3.5 h-3.5" />
+                              {cat?.name}
+                            </>
+                          )
+                        })()}
+                        <button 
+                          onClick={() => handleCategoryClick('all')}
+                          className="hover:bg-green-200 rounded p-0.5 ml-0.5"
+                        >
+                          <HiOutlineXMark className="w-3 h-3" />
+                        </button>
+                      </span>
+                    )}
+                    
+                    {/* 已选标签 */}
+                    {selectedTags.map((tag) => (
+                      <span 
+                        key={tag}
+                        className="inline-flex items-center gap-1 px-2 py-1 bg-apple-blue/10 
+                                   text-apple-blue rounded-md text-sm"
                       >
-                        <HiOutlineXMark className="w-3 h-3" />
-                      </button>
-                    </span>
-                  ))}
+                        {tag}
+                        <button 
+                          onClick={() => handleTagClick(tag)}
+                          className="hover:bg-apple-blue/20 rounded p-0.5"
+                        >
+                          <HiOutlineXMark className="w-3 h-3" />
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                  
+                  <button
+                    onClick={handleClear}
+                    className="text-sm text-apple-gray-dark hover:text-apple-blue transition-colors"
+                  >
+                    清除全部
+                  </button>
                 </div>
-                <button
-                  onClick={() => {
-                    setSelectedTags([])
-                    onSearch(query, [])
-                  }}
-                  className="text-sm text-apple-gray-dark hover:text-apple-blue transition-colors"
-                >
-                  清除全部
-                </button>
               </div>
-            </div>
+            </>
           )}
         </div>
       </div>
-
-      {/* 搜索提示下拉 */}
-      {isFocused && !query && !showAdvanced && (
-        <div className="absolute left-0 right-0 mt-2 p-4 bg-white rounded-xl shadow-lg border border-black/5 z-20">
-          <p className="text-sm text-apple-gray-dark mb-2">试试搜索</p>
-          <div className="flex flex-wrap gap-2">
-            {popularTags.slice(0, 6).map(({ tag }) => (
-              <button
-                key={tag}
-                onMouseDown={(e) => {
-                  e.preventDefault()
-                  handleQuickSearch(tag)
-                }}
-                className="px-3 py-1.5 bg-apple-gray-light rounded-full text-sm text-apple-gray-dark
-                           hover:bg-apple-blue hover:text-white transition-colors"
-              >
-                {tag}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   )
 }

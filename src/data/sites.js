@@ -1,8 +1,10 @@
 // 分类数据
 export const categories = [
   { id: 'all', name: '全部', icon: 'grid' },
-  { id: 'ai', name: 'AI 工具', icon: 'cpu' },
-  { id: 'dev', name: '开发工具', icon: 'code' },
+  { id: 'ai', name: 'AI 相关', icon: 'cpu' },
+  { id: 'tutorial', name: '开发教程', icon: 'academic' },
+  { id: 'opensource', name: '开源项目', icon: 'code' },
+  { id: 'editor', name: '编辑编译工具', icon: 'terminal' },
   { id: 'design', name: '设计资源', icon: 'palette' },
   { id: 'media', name: '影音娱乐', icon: 'play' },
   { id: 'social', name: '社交媒体', icon: 'users' },
@@ -10,12 +12,15 @@ export const categories = [
   { id: 'tools', name: '实用工具', icon: 'wrench' },
   { id: 'learning', name: '学习教育', icon: 'book' },
   { id: 'shopping', name: '购物电商', icon: 'cart' },
-  { id: 'work', name: '工作网站', icon: 'work' },
+  { id: 'quality', name: '优质站点', icon: 'star' },
+  { id: 'official', name: '官方站点', icon: 'building' },
+  { id: 'work', name: '工作网站', icon: 'briefcase' },
+  { id: 'other', name: '其他收录', icon: 'folder' },
 ]
 
 // 网站数据
 export const sites = [
-  // AI 工具
+  // AI 相关
   {
     id: 1,
     title: 'ChatGPT',
@@ -52,48 +57,133 @@ export const sites = [
     category: 'ai',
     tags: ['AI', '图像', '开源'],
   },
-  
-  // 开发工具
+
+  // 开发教程
   {
     id: 10,
+    title: 'MDN Web Docs',
+    subtitle: 'Mozilla 维护的 Web 开发者文档，前端开发必备参考',
+    url: 'https://developer.mozilla.org',
+    image: 'https://developer.mozilla.org/favicon-48x48.ico',
+    category: 'tutorial',
+    tags: ['文档', 'Web', '前端', '教程'],
+  },
+  {
+    id: 11,
+    title: 'freeCodeCamp',
+    subtitle: '免费学习编程的在线平台，提供完整的学习路径',
+    url: 'https://freecodecamp.org',
+    image: 'https://www.freecodecamp.org/favicon.ico',
+    category: 'tutorial',
+    tags: ['编程', '免费', '教程'],
+  },
+  {
+    id: 12,
+    title: 'W3Schools',
+    subtitle: 'Web 开发在线教程，适合初学者入门',
+    url: 'https://w3schools.com',
+    image: 'https://www.w3schools.com/favicon.ico',
+    category: 'tutorial',
+    tags: ['Web', '教程', '入门'],
+  },
+  {
+    id: 13,
+    title: '菜鸟教程',
+    subtitle: '中文编程入门教程网站，涵盖各种编程语言',
+    url: 'https://runoob.com',
+    image: 'https://www.runoob.com/favicon.ico',
+    category: 'tutorial',
+    tags: ['中文', '教程', '入门'],
+  },
+
+  // 开源项目
+  {
+    id: 20,
     title: 'GitHub',
     subtitle: '全球最大的代码托管平台，开发者必备工具',
     url: 'https://github.com',
     image: 'https://github.githubassets.com/favicons/favicon.svg',
-    category: 'dev',
+    category: 'opensource',
     tags: ['代码', 'Git', '开源', '开发'],
   },
   {
-    id: 11,
-    title: 'Stack Overflow',
-    subtitle: '最大的程序员问答社区，解决编程难题首选',
-    url: 'https://stackoverflow.com',
-    image: 'https://cdn.sstatic.net/Sites/stackoverflow/Img/favicon.ico',
-    category: 'dev',
-    tags: ['问答', '编程', '社区'],
+    id: 21,
+    title: 'GitLab',
+    subtitle: '开源的代码托管和 DevOps 平台',
+    url: 'https://gitlab.com',
+    image: 'https://gitlab.com/favicon.ico',
+    category: 'opensource',
+    tags: ['代码', 'Git', 'DevOps'],
   },
   {
-    id: 12,
+    id: 22,
+    title: 'Gitee',
+    subtitle: '国内代码托管平台，访问速度快',
+    url: 'https://gitee.com',
+    image: 'https://gitee.com/favicon.ico',
+    category: 'opensource',
+    tags: ['代码', 'Git', '国内'],
+  },
+  {
+    id: 23,
+    title: 'SourceForge',
+    subtitle: '老牌开源软件托管平台',
+    url: 'https://sourceforge.net',
+    image: 'https://sourceforge.net/favicon.ico',
+    category: 'opensource',
+    tags: ['开源', '软件', '下载'],
+  },
+
+  // 编辑编译工具
+  {
+    id: 30,
+    title: 'VS Code',
+    subtitle: '微软出品的免费代码编辑器，插件生态丰富',
+    url: 'https://code.visualstudio.com',
+    image: 'https://code.visualstudio.com/favicon.ico',
+    category: 'editor',
+    tags: ['编辑器', '开发', '微软'],
+  },
+  {
+    id: 31,
+    title: 'JetBrains',
+    subtitle: '专业的 IDE 开发工具套件，支持多种编程语言',
+    url: 'https://jetbrains.com',
+    image: 'https://www.jetbrains.com/favicon.ico',
+    category: 'editor',
+    tags: ['IDE', '开发', '专业'],
+  },
+  {
+    id: 32,
     title: 'CodePen',
     subtitle: '在线前端代码编辑器，快速测试和分享代码',
     url: 'https://codepen.io',
     image: 'https://cpwebassets.codepen.io/assets/favicon/favicon-aec34940fbc1a6e787974dcd360f2c6b63348d4b1f4e06c77743096d55480f33.ico',
-    category: 'dev',
-    tags: ['前端', '代码', '演示'],
+    category: 'editor',
+    tags: ['前端', '在线', '演示'],
   },
   {
-    id: 13,
-    title: 'VS Code Web',
-    subtitle: '微软出品的在线代码编辑器',
-    url: 'https://vscode.dev',
-    image: 'https://code.visualstudio.com/favicon.ico',
-    category: 'dev',
-    tags: ['编辑器', '开发', '微软'],
+    id: 33,
+    title: 'CodeSandbox',
+    subtitle: '在线代码沙盒，支持各种前端框架',
+    url: 'https://codesandbox.io',
+    image: 'https://codesandbox.io/favicon.ico',
+    category: 'editor',
+    tags: ['在线', '沙盒', '前端'],
   },
-  
+  {
+    id: 34,
+    title: 'Replit',
+    subtitle: '在线 IDE，支持多种编程语言',
+    url: 'https://replit.com',
+    image: 'https://replit.com/favicon.ico',
+    category: 'editor',
+    tags: ['在线', 'IDE', '多语言'],
+  },
+
   // 设计资源
   {
-    id: 20,
+    id: 40,
     title: 'Dribbble',
     subtitle: '设计师作品展示社区，寻找设计灵感的好地方',
     url: 'https://dribbble.com',
@@ -102,7 +192,7 @@ export const sites = [
     tags: ['设计', 'UI', '灵感'],
   },
   {
-    id: 21,
+    id: 41,
     title: 'Figma',
     subtitle: '协作设计工具，团队设计首选',
     url: 'https://figma.com',
@@ -111,7 +201,7 @@ export const sites = [
     tags: ['设计', 'UI', '协作'],
   },
   {
-    id: 22,
+    id: 42,
     title: 'Unsplash',
     subtitle: '免费高质量图片素材库，可商用',
     url: 'https://unsplash.com',
@@ -120,7 +210,7 @@ export const sites = [
     tags: ['图片', '素材', '免费'],
   },
   {
-    id: 23,
+    id: 43,
     title: 'Behance',
     subtitle: 'Adobe 旗下创意作品展示平台',
     url: 'https://behance.net',
@@ -128,10 +218,19 @@ export const sites = [
     category: 'design',
     tags: ['设计', '作品集', 'Adobe'],
   },
-  
+  {
+    id: 44,
+    title: 'Pexels',
+    subtitle: '免费高清图片和视频素材',
+    url: 'https://pexels.com',
+    image: 'https://www.pexels.com/favicon.ico',
+    category: 'design',
+    tags: ['图片', '视频', '免费'],
+  },
+
   // 影音娱乐
   {
-    id: 30,
+    id: 50,
     title: 'YouTube',
     subtitle: '全球最大的视频分享平台，海量视频内容',
     url: 'https://youtube.com',
@@ -140,7 +239,7 @@ export const sites = [
     tags: ['视频', '娱乐', '学习'],
   },
   {
-    id: 31,
+    id: 51,
     title: 'Spotify',
     subtitle: '流媒体音乐服务，千万曲库随心听',
     url: 'https://spotify.com',
@@ -149,7 +248,7 @@ export const sites = [
     tags: ['音乐', '播客', '流媒体'],
   },
   {
-    id: 32,
+    id: 52,
     title: 'Netflix',
     subtitle: '全球领先的流媒体影视平台',
     url: 'https://netflix.com',
@@ -158,7 +257,7 @@ export const sites = [
     tags: ['电影', '电视剧', '流媒体'],
   },
   {
-    id: 33,
+    id: 53,
     title: 'Bilibili',
     subtitle: '国内知名的视频弹幕网站',
     url: 'https://bilibili.com',
@@ -166,10 +265,10 @@ export const sites = [
     category: 'media',
     tags: ['视频', '动漫', '弹幕'],
   },
-  
+
   // 社交媒体
   {
-    id: 40,
+    id: 60,
     title: 'Twitter / X',
     subtitle: '实时社交媒体平台，了解全球动态',
     url: 'https://x.com',
@@ -178,7 +277,7 @@ export const sites = [
     tags: ['社交', '新闻', '实时'],
   },
   {
-    id: 41,
+    id: 61,
     title: 'LinkedIn',
     subtitle: '职业社交网络，拓展职业人脉',
     url: 'https://linkedin.com',
@@ -187,7 +286,7 @@ export const sites = [
     tags: ['职业', '社交', '招聘'],
   },
   {
-    id: 42,
+    id: 62,
     title: 'Discord',
     subtitle: '游戏和社区语音聊天平台',
     url: 'https://discord.com',
@@ -195,10 +294,19 @@ export const sites = [
     category: 'social',
     tags: ['聊天', '社区', '游戏'],
   },
-  
+  {
+    id: 63,
+    title: '微博',
+    subtitle: '中国最大的社交媒体平台之一',
+    url: 'https://weibo.com',
+    image: 'https://weibo.com/favicon.ico',
+    category: 'social',
+    tags: ['社交', '新闻', '国内'],
+  },
+
   // 新闻资讯
   {
-    id: 50,
+    id: 70,
     title: 'Hacker News',
     subtitle: '科技新闻聚合社区，程序员必读',
     url: 'https://news.ycombinator.com',
@@ -207,7 +315,7 @@ export const sites = [
     tags: ['科技', '新闻', '创业'],
   },
   {
-    id: 51,
+    id: 71,
     title: 'Product Hunt',
     subtitle: '发现最新产品和创业项目',
     url: 'https://producthunt.com',
@@ -216,7 +324,7 @@ export const sites = [
     tags: ['产品', '创业', '发现'],
   },
   {
-    id: 52,
+    id: 72,
     title: 'TechCrunch',
     subtitle: '科技创业新闻媒体',
     url: 'https://techcrunch.com',
@@ -224,10 +332,19 @@ export const sites = [
     category: 'news',
     tags: ['科技', '创业', '新闻'],
   },
-  
+  {
+    id: 73,
+    title: '36氪',
+    subtitle: '中国领先的科技新媒体',
+    url: 'https://36kr.com',
+    image: 'https://36kr.com/favicon.ico',
+    category: 'news',
+    tags: ['科技', '创业', '国内'],
+  },
+
   // 实用工具
   {
-    id: 60,
+    id: 80,
     title: 'Notion',
     subtitle: '全能型笔记和协作工具，个人知识管理首选',
     url: 'https://notion.so',
@@ -236,7 +353,7 @@ export const sites = [
     tags: ['笔记', '协作', '效率', '工具'],
   },
   {
-    id: 61,
+    id: 81,
     title: 'Trello',
     subtitle: '看板式项目管理工具，简单易用',
     url: 'https://trello.com',
@@ -245,7 +362,7 @@ export const sites = [
     tags: ['项目管理', '看板', '协作'],
   },
   {
-    id: 62,
+    id: 82,
     title: 'Excalidraw',
     subtitle: '在线手绘风格白板工具',
     url: 'https://excalidraw.com',
@@ -254,7 +371,7 @@ export const sites = [
     tags: ['白板', '绘图', '协作'],
   },
   {
-    id: 63,
+    id: 83,
     title: 'Remove.bg',
     subtitle: '在线AI抠图工具，一键去除背景',
     url: 'https://remove.bg',
@@ -262,10 +379,19 @@ export const sites = [
     category: 'tools',
     tags: ['图片', 'AI', '工具'],
   },
-  
+  {
+    id: 84,
+    title: 'TinyPNG',
+    subtitle: '在线图片压缩工具，保持画质',
+    url: 'https://tinypng.com',
+    image: 'https://tinypng.com/favicon.ico',
+    category: 'tools',
+    tags: ['图片', '压缩', '工具'],
+  },
+
   // 学习教育
   {
-    id: 70,
+    id: 90,
     title: 'Coursera',
     subtitle: '在线学习平台，名校课程随时学',
     url: 'https://coursera.org',
@@ -274,25 +400,16 @@ export const sites = [
     tags: ['课程', '学习', '证书'],
   },
   {
-    id: 71,
-    title: 'MDN Web Docs',
-    subtitle: 'Mozilla 维护的 Web 开发者文档',
-    url: 'https://developer.mozilla.org',
-    image: 'https://developer.mozilla.org/favicon-48x48.ico',
+    id: 91,
+    title: 'Udemy',
+    subtitle: '全球最大的在线课程平台',
+    url: 'https://udemy.com',
+    image: 'https://www.udemy.com/favicon.ico',
     category: 'learning',
-    tags: ['文档', 'Web', '前端', '学习'],
+    tags: ['课程', '学习', '技能'],
   },
   {
-    id: 72,
-    title: 'freeCodeCamp',
-    subtitle: '免费学习编程的在线平台',
-    url: 'https://freecodecamp.org',
-    image: 'https://www.freecodecamp.org/favicon.ico',
-    category: 'learning',
-    tags: ['编程', '免费', '学习'],
-  },
-  {
-    id: 73,
+    id: 92,
     title: 'LeetCode',
     subtitle: '程序员刷题平台，面试必备',
     url: 'https://leetcode.com',
@@ -300,10 +417,19 @@ export const sites = [
     category: 'learning',
     tags: ['算法', '面试', '刷题'],
   },
-  
+  {
+    id: 93,
+    title: 'Khan Academy',
+    subtitle: '免费在线教育平台，覆盖各学科',
+    url: 'https://khanacademy.org',
+    image: 'https://www.khanacademy.org/favicon.ico',
+    category: 'learning',
+    tags: ['免费', '学习', '教育'],
+  },
+
   // 购物电商
   {
-    id: 80,
+    id: 100,
     title: 'Amazon',
     subtitle: '全球最大的电子商务平台',
     url: 'https://amazon.com',
@@ -312,7 +438,7 @@ export const sites = [
     tags: ['购物', '电商', '全球'],
   },
   {
-    id: 81,
+    id: 101,
     title: '淘宝',
     subtitle: '中国最大的网络购物平台',
     url: 'https://taobao.com',
@@ -321,7 +447,7 @@ export const sites = [
     tags: ['购物', '电商', '国内'],
   },
   {
-    id: 82,
+    id: 102,
     title: '京东',
     subtitle: '中国知名的综合电商平台',
     url: 'https://jd.com',
@@ -330,12 +456,164 @@ export const sites = [
     tags: ['购物', '电商', '快递'],
   },
   {
-    id: 83,
-    title: '若善云系统',
-    subtitle: '正式服务',
-    url: 'https://rsc.rsjk.org.cn',
-    image: 'https://cf-r2.zyhorg.ac.cn/images/1764594158571-g0gkrw-logo.png',
+    id: 103,
+    title: '拼多多',
+    subtitle: '社交电商平台，拼团购物更优惠',
+    url: 'https://pinduoduo.com',
+    image: 'https://www.pinduoduo.com/favicon.ico',
+    category: 'shopping',
+    tags: ['购物', '拼团', '优惠'],
+  },
+
+  // 优质站点
+  {
+    id: 110,
+    title: 'Stack Overflow',
+    subtitle: '最大的程序员问答社区，解决编程难题首选',
+    url: 'https://stackoverflow.com',
+    image: 'https://cdn.sstatic.net/Sites/stackoverflow/Img/favicon.ico',
+    category: 'quality',
+    tags: ['问答', '编程', '社区'],
+  },
+  {
+    id: 111,
+    title: 'Medium',
+    subtitle: '优质内容创作和阅读平台',
+    url: 'https://medium.com',
+    image: 'https://medium.com/favicon.ico',
+    category: 'quality',
+    tags: ['阅读', '写作', '博客'],
+  },
+  {
+    id: 112,
+    title: 'Dev.to',
+    subtitle: '开发者社区，分享技术文章',
+    url: 'https://dev.to',
+    image: 'https://dev.to/favicon.ico',
+    category: 'quality',
+    tags: ['开发', '社区', '博客'],
+  },
+  {
+    id: 113,
+    title: '少数派',
+    subtitle: '高质量数字生活内容平台',
+    url: 'https://sspai.com',
+    image: 'https://sspai.com/favicon.ico',
+    category: 'quality',
+    tags: ['数码', '效率', '生活'],
+  },
+
+  // 官方站点
+  {
+    id: 120,
+    title: 'React',
+    subtitle: 'React 官方网站，前端框架文档',
+    url: 'https://react.dev',
+    image: 'https://react.dev/favicon.ico',
+    category: 'official',
+    tags: ['React', '前端', '官方'],
+  },
+  {
+    id: 121,
+    title: 'Vue.js',
+    subtitle: 'Vue.js 官方网站，渐进式框架',
+    url: 'https://vuejs.org',
+    image: 'https://vuejs.org/favicon.ico',
+    category: 'official',
+    tags: ['Vue', '前端', '官方'],
+  },
+  {
+    id: 122,
+    title: 'Tailwind CSS',
+    subtitle: 'Tailwind CSS 官方网站',
+    url: 'https://tailwindcss.com',
+    image: 'https://tailwindcss.com/favicon.ico',
+    category: 'official',
+    tags: ['CSS', '前端', '官方'],
+  },
+  {
+    id: 123,
+    title: 'Node.js',
+    subtitle: 'Node.js 官方网站',
+    url: 'https://nodejs.org',
+    image: 'https://nodejs.org/favicon.ico',
+    category: 'official',
+    tags: ['Node', '后端', '官方'],
+  },
+  {
+    id: 124,
+    title: 'Cloudflare',
+    subtitle: 'Cloudflare 官方网站',
+    url: 'https://cloudflare.com',
+    image: 'https://www.cloudflare.com/favicon.ico',
+    category: 'official',
+    tags: ['CDN', '安全', '官方'],
+  },
+
+  // 工作网站
+  {
+    id: 130,
+    title: 'Boss直聘',
+    subtitle: '直接和老板谈的招聘平台',
+    url: 'https://zhipin.com',
+    image: 'https://www.zhipin.com/favicon.ico',
     category: 'work',
-    tags: ['工作', '若善', '系统'],
+    tags: ['招聘', '求职', '工作'],
+  },
+  {
+    id: 131,
+    title: '拉勾网',
+    subtitle: '互联网垂直招聘平台',
+    url: 'https://lagou.com',
+    image: 'https://www.lagou.com/favicon.ico',
+    category: 'work',
+    tags: ['招聘', '互联网', '工作'],
+  },
+  {
+    id: 132,
+    title: '智联招聘',
+    subtitle: '综合性招聘平台',
+    url: 'https://zhaopin.com',
+    image: 'https://www.zhaopin.com/favicon.ico',
+    category: 'work',
+    tags: ['招聘', '求职', '综合'],
+  },
+  {
+    id: 133,
+    title: '猎聘',
+    subtitle: '中高端人才招聘平台',
+    url: 'https://liepin.com',
+    image: 'https://www.liepin.com/favicon.ico',
+    category: 'work',
+    tags: ['招聘', '猎头', '高端'],
+  },
+
+  // 其他收录
+  {
+    id: 140,
+    title: 'Wikipedia',
+    subtitle: '自由的百科全书，知识宝库',
+    url: 'https://wikipedia.org',
+    image: 'https://www.wikipedia.org/favicon.ico',
+    category: 'other',
+    tags: ['百科', '知识', '免费'],
+  },
+  {
+    id: 141,
+    title: 'Archive.org',
+    subtitle: '互联网档案馆，网页时光机',
+    url: 'https://archive.org',
+    image: 'https://archive.org/favicon.ico',
+    category: 'other',
+    tags: ['档案', '历史', '备份'],
+  },
+  {
+    id: 142,
+    title: 'WolframAlpha',
+    subtitle: '计算知识引擎，解答复杂问题',
+    url: 'https://wolframalpha.com',
+    image: 'https://www.wolframalpha.com/favicon.ico',
+    category: 'other',
+    tags: ['计算', '知识', '数学'],
   },
 ]

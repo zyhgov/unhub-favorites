@@ -3,7 +3,9 @@ import { gsap } from 'gsap'
 import { 
   HiOutlineSquares2X2,
   HiOutlineCpuChip,
+  HiOutlineAcademicCap,
   HiOutlineCodeBracket,
+  HiOutlineCommandLine,
   HiOutlinePaintBrush,
   HiOutlinePlayCircle,
   HiOutlineUserGroup,
@@ -11,18 +13,26 @@ import {
   HiOutlineWrenchScrewdriver,
   HiOutlineBookOpen,
   HiOutlineShoppingCart,
+  HiOutlineStar,
+  HiOutlineBuildingOffice,
   HiOutlineBriefcase,
+  HiOutlineFolder,
   HiOutlineInformationCircle,
+  HiOutlineCog6Tooth,
   HiOutlineChevronDoubleLeft,
   HiOutlineChevronDoubleRight,
   HiOutlineXMark,
 } from 'react-icons/hi2'
 import AboutModal from '../common/AboutModal'
+import LoginModal from '../admin/LoginModal'
+import AdminPanel from '../admin/AdminPanel'
 
 const iconMap = {
   grid: HiOutlineSquares2X2,
   cpu: HiOutlineCpuChip,
+  academic: HiOutlineAcademicCap,
   code: HiOutlineCodeBracket,
+  terminal: HiOutlineCommandLine,
   palette: HiOutlinePaintBrush,
   play: HiOutlinePlayCircle,
   users: HiOutlineUserGroup,
@@ -30,7 +40,10 @@ const iconMap = {
   wrench: HiOutlineWrenchScrewdriver,
   book: HiOutlineBookOpen,
   cart: HiOutlineShoppingCart,
-  work: HiOutlineBriefcase,
+  star: HiOutlineStar,
+  building: HiOutlineBuildingOffice,
+  briefcase: HiOutlineBriefcase,
+  folder: HiOutlineFolder,
 }
 
 const Sidebar = ({ 
@@ -38,10 +51,31 @@ const Sidebar = ({
   activeCategory, 
   onCategoryChange,
   isCollapsed,
-  onToggleCollapse 
+  onToggleCollapse,
+  onDataUpdate, // 新增：数据更新回调
 }) => {
   const sidebarRef = useRef(null)
   const [showAbout, setShowAbout] = useState(false)
+  const [showLogin, setShowLogin] = useState(false)
+  const [showAdmin, setShowAdmin] = useState(false)
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+
+  // 检查登录状态
+  useEffect(() => {
+    const logged = sessionStorage.getItem('unhub_admin_logged')
+    const loginTime = sessionStorage.getItem('unhub_admin_time')
+    
+    // 登录有效期 2 小时
+    if (logged === 'true' && loginTime) {
+      const elapsed = Date.now() - parseInt(loginTime)
+      if (elapsed < 2 * 60 * 60 * 1000) {
+        setIsLoggedIn(true)
+      } else {
+        sessionStorage.removeItem('unhub_admin_logged')
+        sessionStorage.removeItem('unhub_admin_time')
+      }
+    }
+  }, [])
 
   useEffect(() => {
     if (sidebarRef.current && window.innerWidth >= 768) {
@@ -55,7 +89,6 @@ const Sidebar = ({
 
   const handleCategoryClick = (categoryId) => {
     onCategoryChange(categoryId)
-    // 移动端点击后关闭侧边栏
     if (window.innerWidth < 768) {
       onToggleCollapse()
     }
@@ -63,9 +96,32 @@ const Sidebar = ({
 
   const handleAboutClick = () => {
     setShowAbout(true)
-    // 移动端点击后关闭侧边栏
     if (window.innerWidth < 768) {
       onToggleCollapse()
+    }
+  }
+
+  const handleAdminClick = () => {
+    if (isLoggedIn) {
+      setShowAdmin(true)
+    } else {
+      setShowLogin(true)
+    }
+    if (window.innerWidth < 768) {
+      onToggleCollapse()
+    }
+  }
+
+  const handleLoginSuccess = () => {
+    setIsLoggedIn(true)
+    setShowAdmin(true)
+  }
+
+  const handleAdminClose = () => {
+    setShowAdmin(false)
+    // 通知父组件刷新数据
+    if (onDataUpdate) {
+      onDataUpdate()
     }
   }
 
@@ -90,24 +146,23 @@ const Sidebar = ({
       >
         {/* Logo 区域 */}
         <div className="h-14 md:h-16 flex items-center justify-between px-4 border-b border-black/5 flex-shrink-0">
-<div className="flex items-center gap-3 overflow-hidden">
-  <img 
-    src="/logo.svg" 
-    alt="UNHub" 
-    className="w-8 h-8 md:w-10 md:h-10 flex-shrink-0"
-  />
-  {(!isCollapsed || window.innerWidth < 768) && (
-    <span 
-      className="font-extrabold text-base md:text-lg text-apple-black leading-tight"
-      style={{ lineHeight: '1.1' }}
-    >
-      联合库<br />
-      UNHub Favorites
-    </span>
-  )}
-</div>
+          <div className="flex items-center gap-3 overflow-hidden">
+            <img 
+              src="/logo.svg" 
+              alt="UNHub" 
+              className="w-8 h-8 md:w-10 md:h-10 flex-shrink-0"
+            />
+            {(!isCollapsed || window.innerWidth < 768) && (
+              <span 
+                className="font-extrabold text-base md:text-lg text-apple-black leading-tight"
+                style={{ lineHeight: '1.1' }}
+              >
+                联合库<br />
+                UNHub Favorites
+              </span>
+            )}
+          </div>
           
-          {/* 移动端关闭按钮 */}
           <button
             onClick={onToggleCollapse}
             className="md:hidden p-1.5 rounded-lg hover:bg-apple-gray-light transition-colors"
@@ -117,7 +172,7 @@ const Sidebar = ({
         </div>
 
         {/* 分类导航 */}
-        <nav className="flex-1 py-3 md:py-4 overflow-y-auto overflow-x-hidden">
+        <nav className="flex-1 py-3 md:py-4 overflow-y-auto overflow-x-hidden scrollbar-thin">
           {(!isCollapsed || window.innerWidth < 768) && (
             <div className="px-4 mb-2">
               <span className="text-xs font-medium text-apple-gray-dark uppercase tracking-wider">
@@ -126,7 +181,7 @@ const Sidebar = ({
             </div>
           )}
           
-          <ul className="space-y-1 px-2">
+          <ul className="space-y-0.5 px-2">
             {categories.map((category) => {
               const IconComponent = iconMap[category.icon] || HiOutlineSquares2X2
               const isActive = activeCategory === category.id
@@ -160,7 +215,7 @@ const Sidebar = ({
 
         {/* 底部区域 */}
         <div className="border-t border-black/5 p-2 md:p-3 flex-shrink-0 space-y-1 md:space-y-2">
-          {/* 展开/收起按钮 - 仅桌面端显示 */}
+          {/* 展开/收起按钮 */}
           <button 
             onClick={onToggleCollapse}
             className={`hidden md:flex w-full items-center gap-3 px-3 py-2 md:py-2.5 rounded-xl
@@ -192,13 +247,43 @@ const Sidebar = ({
               <span className="font-medium whitespace-nowrap text-sm">关于本站</span>
             )}
           </button>
+
+          {/* 管理资源 */}
+          <button 
+            onClick={handleAdminClick}
+            className={`w-full flex items-center gap-3 px-3 py-2 md:py-2.5 rounded-xl
+                       transition-all duration-200 ${
+                         isLoggedIn 
+                           ? 'bg-apple-blue/10 text-apple-blue hover:bg-apple-blue/20' 
+                           : 'text-apple-gray-dark hover:bg-apple-gray-light hover:text-apple-black'
+                       }`}
+            title={isCollapsed && window.innerWidth >= 768 ? '管理资源' : ''}
+          >
+            <HiOutlineCog6Tooth className="w-5 h-5 flex-shrink-0" />
+            {(!isCollapsed || window.innerWidth < 768) && (
+              <span className="font-medium whitespace-nowrap text-sm">
+                {isLoggedIn ? '管理资源' : '添加资源'}
+              </span>
+            )}
+          </button>
         </div>
       </aside>
 
-      {/* 关于本站弹窗 */}
+      {/* 弹窗 */}
       <AboutModal 
         isOpen={showAbout} 
         onClose={() => setShowAbout(false)} 
+      />
+      
+      <LoginModal
+        isOpen={showLogin}
+        onClose={() => setShowLogin(false)}
+        onLoginSuccess={handleLoginSuccess}
+      />
+      
+      <AdminPanel
+        isOpen={showAdmin}
+        onClose={handleAdminClose}
       />
     </>
   )

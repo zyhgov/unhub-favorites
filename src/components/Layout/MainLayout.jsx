@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Sidebar from './Sidebar'
 import SearchBar from '../common/SearchBar'
 import SiteCard from '../common/SiteCard'
 import CategorySection from '../common/CategorySection'
 import Clock from '../common/Clock'
-import { categories, sites } from '../../data/sites'
+import Loading from '../common/Loading'
+import { fetchCategories, fetchActiveSites, fetchTags } from '../../services/api'
 import { HiOutlineSquares2X2, HiOutlineBars3 } from 'react-icons/hi2'
 
 const MainLayout = () => {
@@ -13,7 +14,37 @@ const MainLayout = () => {
   const [activeCategory, setActiveCategory] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedTags, setSelectedTags] = useState([])
-  const [filteredSites, setFilteredSites] = useState(sites)
+  
+  // 数据状态
+  const [categories, setCategories] = useState([])
+  const [sites, setSites] = useState([])
+  const [allTags, setAllTags] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [filteredSites, setFilteredSites] = useState([])
+  
+  // 加载数据
+  const loadData = useCallback(async () => {
+    try {
+      setLoading(true)
+      const [categoriesData, sitesData, tagsData] = await Promise.all([
+        fetchCategories(),
+        fetchActiveSites(),
+        fetchTags()
+      ])
+      setCategories(categoriesData || [])
+      setSites(sitesData || [])
+      setAllTags(tagsData || [])
+      setFilteredSites(sitesData || [])
+    } catch (error) {
+      console.error('Failed to load data:', error)
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    loadData()
+  }, [loadData])
   
   // 响应式处理
   useEffect(() => {
@@ -34,50 +65,43 @@ const MainLayout = () => {
   useEffect(() => {
     let result = sites
 
-    // 按分类过滤
     if (activeCategory !== 'all') {
       result = result.filter(site => site.category === activeCategory)
     }
 
-    // 按搜索词过滤
     if (searchQuery) {
       const query = searchQuery.toLowerCase()
       result = result.filter(site => 
-        site.title.toLowerCase().includes(query) ||
-        site.subtitle.toLowerCase().includes(query) ||
-        site.url.toLowerCase().includes(query) ||
-        site.tags.some(tag => tag.toLowerCase().includes(query))
+        site.title?.toLowerCase().includes(query) ||
+        site.subtitle?.toLowerCase().includes(query) ||
+        site.url?.toLowerCase().includes(query) ||
+        (site.tags && site.tags.some(tag => tag.toLowerCase().includes(query)))
       )
     }
 
-    // 按标签过滤
     if (selectedTags.length > 0) {
       result = result.filter(site =>
-        selectedTags.some(tag => 
+        site.tags && selectedTags.some(tag => 
           site.tags.some(siteTag => siteTag.toLowerCase().includes(tag.toLowerCase()))
         )
       )
     }
 
     setFilteredSites(result)
-  }, [activeCategory, searchQuery, selectedTags])
+  }, [activeCategory, searchQuery, selectedTags, sites])
 
-  // 搜索处理
   const handleSearch = (query, tags = []) => {
     setSearchQuery(query)
     setSelectedTags(tags)
   }
 
-  // 查看全部分类
   const handleViewAll = (categoryId) => {
     setActiveCategory(categoryId)
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
-  // 获取当前分类
   const currentCategory = categories.find(c => c.id === activeCategory)
 
-  // 按分类分组网站（用于全部视图）
   const groupedSites = categories
     .filter(c => c.id !== 'all')
     .map(category => ({
@@ -86,30 +110,31 @@ const MainLayout = () => {
     }))
     .filter(group => group.sites.length > 0)
 
-  // 计算主内容区的左边距
   const mainMarginLeft = isMobile ? 0 : (isCollapsed ? 72 : 260)
+
+  // 显示加载页面
+  if (loading) {
+    return <Loading text="正在连接并加载数据" />
+  }
 
   return (
     <div className="min-h-screen bg-apple-gray-light">
-      {/* 侧边栏 */}
       <Sidebar
         categories={categories}
         activeCategory={activeCategory}
         onCategoryChange={setActiveCategory}
         isCollapsed={isCollapsed}
         onToggleCollapse={() => setIsCollapsed(!isCollapsed)}
+        onDataUpdate={loadData}
       />
 
-      {/* 主内容区 */}
       <main 
         className="transition-all duration-300 min-h-screen"
         style={{ marginLeft: mainMarginLeft }}
       >
-        {/* 顶部区域 - 搜索框和时钟 */}
         <header className="sticky top-0 z-30 bg-apple-gray-light/80 backdrop-blur-xl border-b border-black/5">
           <div className="px-4 md:px-6 lg:px-8 py-3 md:py-4">
             <div className="flex items-center gap-3 md:gap-4">
-              {/* 移动端菜单按钮 */}
               {isMobile && (
                 <button
                   onClick={() => setIsCollapsed(false)}
@@ -120,12 +145,16 @@ const MainLayout = () => {
                 </button>
               )}
               
-              {/* 搜索框 - 左侧 */}
               <div className="flex-1 relative">
-                <SearchBar onSearch={handleSearch} />
+                <SearchBar 
+                  onSearch={handleSearch} 
+                  allTags={allTags}
+                  categories={categories}
+                  activeCategory={activeCategory}
+                  onCategoryChange={setActiveCategory}
+                />
               </div>
               
-              {/* 时钟 - 右侧 */}
               <div className="hidden md:block flex-shrink-0">
                 <Clock />
               </div>
@@ -133,9 +162,7 @@ const MainLayout = () => {
           </div>
         </header>
 
-        {/* 内容区域 */}
         <div className="px-4 md:px-6 lg:px-8 py-4 md:py-6">
-          {/* 分类标题栏 */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-6">
             <div>
               <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-apple-black">
@@ -158,16 +185,13 @@ const MainLayout = () => {
               </div>
             </div>
             
-            {/* 移动端显示时钟 */}
             <div className="md:hidden">
               <Clock />
             </div>
           </div>
 
-          {/* 网站内容 */}
           {filteredSites.length > 0 ? (
             activeCategory === 'all' ? (
-              // 全部视图：按分类分组展示
               <div className="space-y-6 md:space-y-8">
                 {groupedSites.map(({ category, sites }) => (
                   <CategorySection
@@ -179,7 +203,6 @@ const MainLayout = () => {
                 ))}
               </div>
             ) : (
-              // 单分类视图：网格展示 - 一行3-4个
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4">
                 {filteredSites.map((site) => (
                   <SiteCard key={site.id} site={site} />
@@ -187,7 +210,6 @@ const MainLayout = () => {
               </div>
             )
           ) : (
-            // 空状态
             <div className="flex flex-col items-center justify-center py-16 md:py-20">
               <div className="w-16 h-16 md:w-20 md:h-20 bg-apple-gray-medium rounded-full flex items-center justify-center mb-4 md:mb-6">
                 <HiOutlineSquares2X2 className="w-8 h-8 md:w-10 md:h-10 text-apple-gray-dark" />

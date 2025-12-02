@@ -4,7 +4,9 @@ import SiteCard from './SiteCard'
 import { 
   HiOutlineSquares2X2,
   HiOutlineCpuChip,
+  HiOutlineAcademicCap,
   HiOutlineCodeBracket,
+  HiOutlineCommandLine,
   HiOutlinePaintBrush,
   HiOutlinePlayCircle,
   HiOutlineUserGroup,
@@ -12,14 +14,19 @@ import {
   HiOutlineWrenchScrewdriver,
   HiOutlineBookOpen,
   HiOutlineShoppingCart,
+  HiOutlineStar,
+  HiOutlineBuildingOffice,
   HiOutlineBriefcase,
+  HiOutlineFolder,
   HiOutlineChevronRight,
 } from 'react-icons/hi2'
 
 const iconMap = {
   grid: HiOutlineSquares2X2,
   cpu: HiOutlineCpuChip,
+  academic: HiOutlineAcademicCap,
   code: HiOutlineCodeBracket,
+  terminal: HiOutlineCommandLine,
   palette: HiOutlinePaintBrush,
   play: HiOutlinePlayCircle,
   users: HiOutlineUserGroup,
@@ -27,7 +34,10 @@ const iconMap = {
   wrench: HiOutlineWrenchScrewdriver,
   book: HiOutlineBookOpen,
   cart: HiOutlineShoppingCart,
-  work: HiOutlineBriefcase,
+  star: HiOutlineStar,
+  building: HiOutlineBuildingOffice,
+  briefcase: HiOutlineBriefcase,
+  folder: HiOutlineFolder,
 }
 
 const CategorySection = ({ category, sites, onViewAll }) => {
@@ -44,7 +54,7 @@ const CategorySection = ({ category, sites, onViewAll }) => {
     }
   }, [])
 
-  if (sites.length === 0) return null
+  if (!sites || sites.length === 0) return null
 
   return (
     <section ref={sectionRef} className="mb-8 md:mb-10">
@@ -72,7 +82,7 @@ const CategorySection = ({ category, sites, onViewAll }) => {
         )}
       </div>
 
-      {/* 网站卡片网格 - 一行3-4个 */}
+      {/* 网站卡片网格 */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4">
         {sites.slice(0, 8).map((site) => (
           <SiteCard key={site.id} site={site} />
