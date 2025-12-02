@@ -1,8 +1,33 @@
 import { supabase } from '../lib/supabase'
 
+// 请求重试配置
+const MAX_RETRIES = 3
+const RETRY_DELAY = 1000
+
+// 带重试的请求函数
+const withRetry = async (fn, retries = MAX_RETRIES) => {
+  let lastError
+  
+  for (let i = 0; i < retries; i++) {
+    try {
+      return await fn()
+    } catch (error) {
+      lastError = error
+      console.warn(`请求失败，第 ${i + 1} 次重试...`, error.message)
+      
+      if (i < retries - 1) {
+        // 等待后重试，每次等待时间递增
+        await new Promise(resolve => setTimeout(resolve, RETRY_DELAY * (i + 1)))
+      }
+    }
+  }
+  
+  throw lastError
+}
+
 // 简单的请求缓存
 const requestCache = new Map()
-const CACHE_TTL = 30 * 1000 // 30秒缓存
+const CACHE_TTL = 30 * 1000
 
 const getCached = (key) => {
   const cached = requestCache.get(key)
@@ -29,18 +54,17 @@ export const fetchCategories = async (useCache = true) => {
     if (cached) return cached
   }
 
-  const { data, error } = await supabase
-    .from('nav_categories')
-    .select('id, name, icon, sort_order')
-    .order('sort_order')
-  
-  if (error) {
-    console.error('Error fetching categories:', error)
-    return []
-  }
-  
-  setCache(cacheKey, data)
-  return data
+  return withRetry(async () => {
+    const { data, error } = await supabase
+      .from('nav_categories')
+      .select('id, name, icon, sort_order')
+      .order('sort_order')
+    
+    if (error) throw error
+    
+    setCache(cacheKey, data || [])
+    return data || []
+  })
 }
 
 // ============ 网站相关 ============
@@ -52,21 +76,20 @@ export const fetchSites = async (useCache = true) => {
     if (cached) return cached
   }
 
-  const { data, error } = await supabase
-    .from('nav_sites')
-    .select('id, title, subtitle, url, image, category, tags, is_active, created_at')
-    .order('created_at', { ascending: false })
-  
-  if (error) {
-    console.error('Error fetching sites:', error)
-    return []
-  }
-  
-  setCache(cacheKey, data)
-  return data
+  return withRetry(async () => {
+    const { data, error } = await supabase
+      .from('nav_sites')
+      .select('id, title, subtitle, url, image, category, tags, is_active, created_at')
+      .order('created_at', { ascending: false })
+    
+    if (error) throw error
+    
+    setCache(cacheKey, data || [])
+    return data || []
+  })
 }
 
-// 获取启用的网站（前台展示用）
+// 获取启用的网站
 export const fetchActiveSites = async (useCache = true) => {
   const cacheKey = 'sites_active'
   
@@ -75,103 +98,104 @@ export const fetchActiveSites = async (useCache = true) => {
     if (cached) return cached
   }
 
-  const { data, error } = await supabase
-    .from('nav_sites')
-    .select('id, title, subtitle, url, image, category, tags, is_active')
-    .eq('is_active', true)
-    .order('sort_order')
-    .order('created_at', { ascending: false })
-  
-  if (error) {
-    console.error('Error fetching active sites:', error)
-    return []
-  }
-  
-  setCache(cacheKey, data)
-  return data
+  return withRetry(async () => {
+    const { data, error } = await supabase
+      .from('nav_sites')
+      .select('id, title, subtitle, url, image, category, tags, is_active')
+      .eq('is_active', true)
+      .order('sort_order')
+      .order('created_at', { ascending: false })
+    
+    if (error) throw error
+    
+    setCache(cacheKey, data || [])
+    return data || []
+  })
 }
 
 // 添加网站
 export const addSite = async (site) => {
   const siteData = {
-    ...site,
-    tags: Array.isArray(site.tags) ? site.tags : []
+    title: site.title?.trim() || '',
+    subtitle: site.subtitle?.trim() || '',
+    url: site.url?.trim() || '',
+    image: site.image?.trim() || null,
+    category: site.category || '',
+    tags: Array.isArray(site.tags) ? site.tags.filter(t => t) : [],
+    is_active: site.is_active !== false,
   }
   
-  const { data, error } = await supabase
-    .from('nav_sites')
-    .insert([siteData])
-    .select()
-    .single()
-  
-  if (error) {
-    console.error('Error adding site:', error)
-    throw new Error(error.message || '添加失败')
-  }
-  
-  // 清除缓存
-  clearApiCache()
-  return data
+  return withRetry(async () => {
+    const { data, error } = await supabase
+      .from('nav_sites')
+      .insert([siteData])
+      .select()
+      .single()
+    
+    if (error) throw error
+    
+    clearApiCache()
+    return data
+  })
 }
 
 // 更新网站
 export const updateSite = async (id, updates) => {
   const updateData = {
-    ...updates,
-    tags: Array.isArray(updates.tags) ? updates.tags : []
+    title: updates.title?.trim() || '',
+    subtitle: updates.subtitle?.trim() || '',
+    url: updates.url?.trim() || '',
+    image: updates.image?.trim() || null,
+    category: updates.category || '',
+    tags: Array.isArray(updates.tags) ? updates.tags.filter(t => t) : [],
+    is_active: updates.is_active !== false,
   }
   
-  const { data, error } = await supabase
-    .from('nav_sites')
-    .update(updateData)
-    .eq('id', id)
-    .select()
-    .single()
-  
-  if (error) {
-    console.error('Error updating site:', error)
-    throw new Error(error.message || '更新失败')
-  }
-  
-  // 清除缓存
-  clearApiCache()
-  return data
+  return withRetry(async () => {
+    const { data, error } = await supabase
+      .from('nav_sites')
+      .update(updateData)
+      .eq('id', id)
+      .select()
+      .single()
+    
+    if (error) throw error
+    
+    clearApiCache()
+    return data
+  })
 }
 
 // 删除网站
 export const deleteSite = async (id) => {
-  const { error } = await supabase
-    .from('nav_sites')
-    .delete()
-    .eq('id', id)
-  
-  if (error) {
-    console.error('Error deleting site:', error)
-    throw new Error(error.message || '删除失败')
-  }
-  
-  // 清除缓存
-  clearApiCache()
-  return true
+  return withRetry(async () => {
+    const { error } = await supabase
+      .from('nav_sites')
+      .delete()
+      .eq('id', id)
+    
+    if (error) throw error
+    
+    clearApiCache()
+    return true
+  })
 }
 
-// 切换网站启用状态
+// 切换启用状态
 export const toggleSiteActive = async (id, isActive) => {
-  const { data, error } = await supabase
-    .from('nav_sites')
-    .update({ is_active: isActive })
-    .eq('id', id)
-    .select()
-    .single()
-  
-  if (error) {
-    console.error('Error toggling site:', error)
-    throw new Error(error.message || '操作失败')
-  }
-  
-  // 清除缓存
-  clearApiCache()
-  return data
+  return withRetry(async () => {
+    const { data, error } = await supabase
+      .from('nav_sites')
+      .update({ is_active: isActive })
+      .eq('id', id)
+      .select()
+      .single()
+    
+    if (error) throw error
+    
+    clearApiCache()
+    return data
+  })
 }
 
 // ============ 标签相关 ============
@@ -183,30 +207,29 @@ export const fetchTags = async (useCache = true) => {
     if (cached) return cached
   }
 
-  const { data, error } = await supabase
-    .from('nav_sites')
-    .select('tags')
-  
-  if (error) {
-    console.error('Error fetching tags:', error)
-    return []
-  }
-  
-  const tagCount = {}
-  data.forEach(site => {
-    if (site.tags && Array.isArray(site.tags)) {
-      site.tags.forEach(tag => {
-        if (tag && typeof tag === 'string') {
-          tagCount[tag] = (tagCount[tag] || 0) + 1
-        }
-      })
-    }
+  return withRetry(async () => {
+    const { data, error } = await supabase
+      .from('nav_sites')
+      .select('tags')
+    
+    if (error) throw error
+    
+    const tagCount = {}
+    ;(data || []).forEach(site => {
+      if (site.tags && Array.isArray(site.tags)) {
+        site.tags.forEach(tag => {
+          if (tag && typeof tag === 'string') {
+            tagCount[tag] = (tagCount[tag] || 0) + 1
+          }
+        })
+      }
+    })
+    
+    const result = Object.entries(tagCount)
+      .sort((a, b) => b[1] - a[1])
+      .map(([tag, count]) => ({ tag, count }))
+    
+    setCache(cacheKey, result)
+    return result
   })
-  
-  const result = Object.entries(tagCount)
-    .sort((a, b) => b[1] - a[1])
-    .map(([tag, count]) => ({ tag, count }))
-  
-  setCache(cacheKey, result)
-  return result
 }

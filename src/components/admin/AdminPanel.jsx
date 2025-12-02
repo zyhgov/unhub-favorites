@@ -13,6 +13,7 @@ import {
 } from 'react-icons/hi2'
 import { fetchSites, fetchCategories, addSite, updateSite, deleteSite, toggleSiteActive, clearApiCache } from '../../services/api'
 import SiteFormModal from './SiteFormModal'
+import FaviconImage from '../common/FaviconImage'
 
 // 图片组件 - 带懒加载和错误处理
 const SiteImage = ({ src, url, alt }) => {
@@ -356,10 +357,11 @@ const AdminPanel = ({ isOpen, onClose }) => {
                     {/* 网站信息 */}
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-3">
-                        <SiteImage 
+                        <FaviconImage 
                           src={site.image} 
                           url={site.url} 
-                          alt={site.title} 
+                          alt={site.title}
+                          size="md"
                         />
                         <div className="min-w-0">
                           <p className="font-medium text-apple-black text-sm truncate max-w-[120px] md:max-w-[200px]">

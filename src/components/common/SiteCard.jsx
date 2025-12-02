@@ -1,10 +1,10 @@
 import { useRef } from 'react'
 import { gsap } from 'gsap'
 import { HiOutlineArrowTopRightOnSquare, HiOutlineNoSymbol } from 'react-icons/hi2'
+import FaviconImage from './FaviconImage'
 
 const SiteCard = ({ site }) => {
   const cardRef = useRef(null)
-  const imageRef = useRef(null)
 
   const isActive = site.is_active !== false
 
@@ -13,11 +13,6 @@ const SiteCard = ({ site }) => {
     gsap.to(cardRef.current, {
       y: -4,
       scale: 1.02,
-      duration: 0.3,
-      ease: 'power2.out',
-    })
-    gsap.to(imageRef.current, {
-      scale: 1.1,
       duration: 0.3,
       ease: 'power2.out',
     })
@@ -30,16 +25,6 @@ const SiteCard = ({ site }) => {
       duration: 0.3,
       ease: 'power2.out',
     })
-    gsap.to(imageRef.current, {
-      scale: 1,
-      duration: 0.3,
-      ease: 'power2.out',
-    })
-  }
-
-  const handleImageError = (e) => {
-    const domain = new URL(site.url).hostname
-    e.target.src = `https://www.google.com/s2/favicons?domain=${domain}&sz=128`
   }
 
   const handleClick = (e) => {
@@ -65,18 +50,18 @@ const SiteCard = ({ site }) => {
                  }`}
     >
       <div className="flex items-center p-3 md:p-4 gap-3 md:gap-4">
-        {/* 左侧图片 */}
-        <div className="relative w-14 h-14 md:w-16 md:h-16 flex-shrink-0 rounded-xl overflow-hidden bg-apple-gray-light">
-          <img
-            ref={imageRef}
-            src={site.image || `https://www.google.com/s2/favicons?domain=${site.url}&sz=128`}
+        {/* 左侧图片 - 使用新组件 */}
+        <div className="relative">
+          <FaviconImage
+            src={site.image}
+            url={site.url}
             alt={site.title}
-            onError={handleImageError}
-            className="w-full h-full object-cover"
+            size="lg"
           />
+          
           {/* 悬浮图标 */}
           {isActive && (
-            <div className="absolute inset-0 bg-apple-black/0 group-hover:bg-apple-black/20 
+            <div className="absolute inset-0 rounded-xl bg-apple-black/0 group-hover:bg-apple-black/20 
                             transition-colors duration-300 flex items-center justify-center">
               <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300
                               transform scale-50 group-hover:scale-100">
@@ -84,9 +69,10 @@ const SiteCard = ({ site }) => {
               </div>
             </div>
           )}
+          
           {/* 停用标识 */}
           {!isActive && (
-            <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+            <div className="absolute inset-0 rounded-xl bg-black/40 flex items-center justify-center">
               <HiOutlineNoSymbol className="w-6 h-6 text-white" />
             </div>
           )}
@@ -113,7 +99,7 @@ const SiteCard = ({ site }) => {
             {site.subtitle}
           </p>
           
-          {/* 标签 - 显示所有标签 */}
+          {/* 标签 */}
           {site.tags && site.tags.length > 0 && (
             <div className="flex flex-wrap gap-1 mt-2">
               {site.tags.map((tag, index) => (

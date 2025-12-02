@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { gsap } from 'gsap'
-import { HiOutlineXMark, HiOutlinePlus } from 'react-icons/hi2'
+import { HiOutlineXMark, HiOutlinePlus, HiOutlineCheckCircle, HiOutlineExclamationCircle } from 'react-icons/hi2'
+import FaviconImage from '../common/FaviconImage'
 
 const SiteFormModal = ({ isOpen, onClose, onSave, site, categories }) => {
   const [formData, setFormData] = useState({
@@ -15,7 +16,7 @@ const SiteFormModal = ({ isOpen, onClose, onSave, site, categories }) => {
   const [tagInput, setTagInput] = useState('')
   const [loading, setLoading] = useState(false)
   const [errors, setErrors] = useState({})
-  const [saveError, setSaveError] = useState('')
+  const [saveStatus, setSaveStatus] = useState({ type: '', message: '' })
   
   const modalRef = useRef(null)
   const overlayRef = useRef(null)
@@ -45,7 +46,7 @@ const SiteFormModal = ({ isOpen, onClose, onSave, site, categories }) => {
         })
       }
       setErrors({})
-      setSaveError('')
+      setSaveStatus({ type: '', message: '' })
       setTagInput('')
     }
   }, [site, categories, isOpen])
@@ -62,6 +63,7 @@ const SiteFormModal = ({ isOpen, onClose, onSave, site, categories }) => {
   }, [isOpen])
 
   const handleClose = () => {
+    if (loading) return // 保存中不允许关闭
     gsap.to(overlayRef.current, { opacity: 0, duration: 0.2 })
     gsap.to(modalRef.current, {
       opacity: 0,
@@ -99,7 +101,6 @@ const SiteFormModal = ({ isOpen, onClose, onSave, site, categories }) => {
     if (!formData.url.trim()) newErrors.url = '请输入网址'
     if (!formData.category) newErrors.category = '请选择分类'
     
-    // 验证 URL 格式
     if (formData.url && !formData.url.match(/^https?:\/\/.+/)) {
       newErrors.url = '请输入有效的网址（以 http:// 或 https:// 开头）'
     }
@@ -114,10 +115,9 @@ const SiteFormModal = ({ isOpen, onClose, onSave, site, categories }) => {
     if (!validate()) return
     
     setLoading(true)
-    setSaveError('')
+    setSaveStatus({ type: '', message: '' })
     
     try {
-      // 构建提交数据
       const submitData = {
         title: formData.title.trim(),
         subtitle: formData.subtitle.trim(),
@@ -129,9 +129,19 @@ const SiteFormModal = ({ isOpen, onClose, onSave, site, categories }) => {
       }
       
       await onSave(submitData)
+      setSaveStatus({ type: 'success', message: '保存成功！' })
+      
+      // 延迟关闭
+      setTimeout(() => {
+        handleClose()
+      }, 500)
+      
     } catch (error) {
       console.error('Save error:', error)
-      setSaveError(error.message || '保存失败，请重试')
+      setSaveStatus({ 
+        type: 'error', 
+        message: error.message || '保存失败，请重试' 
+      })
     } finally {
       setLoading(false)
     }
@@ -158,7 +168,8 @@ const SiteFormModal = ({ isOpen, onClose, onSave, site, categories }) => {
           </h3>
           <button
             onClick={handleClose}
-            className="p-2 hover:bg-apple-gray-light rounded-lg transition-colors"
+            disabled={loading}
+            className="p-2 hover:bg-apple-gray-light rounded-lg transition-colors disabled:opacity-50"
           >
             <HiOutlineXMark className="w-5 h-5 text-apple-gray-dark" />
           </button>
@@ -166,10 +177,19 @@ const SiteFormModal = ({ isOpen, onClose, onSave, site, categories }) => {
 
         {/* 表单 */}
         <form onSubmit={handleSubmit} className="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
-          {/* 保存错误提示 */}
-          {saveError && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-xl">
-              <p className="text-sm text-red-600">{saveError}</p>
+          {/* 状态提示 */}
+          {saveStatus.message && (
+            <div className={`flex items-center gap-2 p-3 rounded-xl ${
+              saveStatus.type === 'success' 
+                ? 'bg-green-50 text-green-700 border border-green-200' 
+                : 'bg-red-50 text-red-700 border border-red-200'
+            }`}>
+              {saveStatus.type === 'success' ? (
+                <HiOutlineCheckCircle className="w-5 h-5 flex-shrink-0" />
+              ) : (
+                <HiOutlineExclamationCircle className="w-5 h-5 flex-shrink-0" />
+              )}
+              <p className="text-sm">{saveStatus.message}</p>
             </div>
           )}
 
@@ -183,8 +203,10 @@ const SiteFormModal = ({ isOpen, onClose, onSave, site, categories }) => {
               value={formData.title}
               onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
               placeholder="如：ChatGPT"
+              disabled={loading}
               className={`w-full px-4 py-2.5 bg-apple-gray-light rounded-xl outline-none
-                       focus:ring-2 focus:ring-apple-blue/20 transition-all ${errors.title ? 'ring-2 ring-red-300' : ''}`}
+                       focus:ring-2 focus:ring-apple-blue/20 transition-all disabled:opacity-50
+                       ${errors.title ? 'ring-2 ring-red-300' : ''}`}
             />
             {errors.title && <p className="text-red-500 text-xs mt-1">{errors.title}</p>}
           </div>
@@ -199,8 +221,9 @@ const SiteFormModal = ({ isOpen, onClose, onSave, site, categories }) => {
               onChange={(e) => setFormData(prev => ({ ...prev, subtitle: e.target.value }))}
               placeholder="简要描述这个网站..."
               rows={2}
+              disabled={loading}
               className="w-full px-4 py-2.5 bg-apple-gray-light rounded-xl outline-none resize-none
-                       focus:ring-2 focus:ring-apple-blue/20 transition-all"
+                       focus:ring-2 focus:ring-apple-blue/20 transition-all disabled:opacity-50"
             />
           </div>
 
@@ -214,25 +237,41 @@ const SiteFormModal = ({ isOpen, onClose, onSave, site, categories }) => {
               value={formData.url}
               onChange={(e) => setFormData(prev => ({ ...prev, url: e.target.value }))}
               placeholder="https://example.com"
+              disabled={loading}
               className={`w-full px-4 py-2.5 bg-apple-gray-light rounded-xl outline-none
-                       focus:ring-2 focus:ring-apple-blue/20 transition-all ${errors.url ? 'ring-2 ring-red-300' : ''}`}
+                       focus:ring-2 focus:ring-apple-blue/20 transition-all disabled:opacity-50
+                       ${errors.url ? 'ring-2 ring-red-300' : ''}`}
             />
             {errors.url && <p className="text-red-500 text-xs mt-1">{errors.url}</p>}
           </div>
 
-          {/* 图标链接 */}
+          {/* 图标链接 + 预览 */}
           <div>
             <label className="block text-sm font-medium text-apple-black mb-1">
               图标链接
             </label>
-            <input
-              type="url"
-              value={formData.image}
-              onChange={(e) => setFormData(prev => ({ ...prev, image: e.target.value }))}
-              placeholder="https://example.com/favicon.ico（可留空自动获取）"
-              className="w-full px-4 py-2.5 bg-apple-gray-light rounded-xl outline-none
-                       focus:ring-2 focus:ring-apple-blue/20 transition-all"
-            />
+            <div className="flex gap-3 items-start">
+              <FaviconImage
+                src={formData.image}
+                url={formData.url || 'https://example.com'}
+                alt={formData.title || '预览'}
+                size="md"
+              />
+              <div className="flex-1">
+                <input
+                  type="url"
+                  value={formData.image}
+                  onChange={(e) => setFormData(prev => ({ ...prev, image: e.target.value }))}
+                  placeholder="留空将自动获取网站图标"
+                  disabled={loading}
+                  className="w-full px-4 py-2.5 bg-apple-gray-light rounded-xl outline-none
+                           focus:ring-2 focus:ring-apple-blue/20 transition-all disabled:opacity-50"
+                />
+                <p className="text-xs text-apple-gray-dark mt-1">
+                  💡 留空时会自动尝试获取网站图标
+                </p>
+              </div>
+            </div>
           </div>
 
           {/* 分类 */}
@@ -243,8 +282,10 @@ const SiteFormModal = ({ isOpen, onClose, onSave, site, categories }) => {
             <select
               value={formData.category}
               onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value }))}
+              disabled={loading}
               className={`w-full px-4 py-2.5 bg-apple-gray-light rounded-xl outline-none cursor-pointer
-                       focus:ring-2 focus:ring-apple-blue/20 transition-all ${errors.category ? 'ring-2 ring-red-300' : ''}`}
+                       focus:ring-2 focus:ring-apple-blue/20 transition-all disabled:opacity-50
+                       ${errors.category ? 'ring-2 ring-red-300' : ''}`}
             >
               <option value="">请选择分类</option>
               {categories.map(cat => (
@@ -271,20 +312,20 @@ const SiteFormModal = ({ isOpen, onClose, onSave, site, categories }) => {
                   }
                 }}
                 placeholder="输入标签后按回车添加"
+                disabled={loading}
                 className="flex-1 px-4 py-2 bg-apple-gray-light rounded-xl outline-none
-                         focus:ring-2 focus:ring-apple-blue/20 transition-all"
+                         focus:ring-2 focus:ring-apple-blue/20 transition-all disabled:opacity-50"
               />
               <button
                 type="button"
                 onClick={handleAddTag}
-                disabled={!tagInput.trim()}
+                disabled={!tagInput.trim() || loading}
                 className="px-4 py-2 bg-apple-blue text-white rounded-xl hover:bg-apple-blue/90 
                          transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <HiOutlinePlus className="w-5 h-5" />
               </button>
             </div>
-            {/* 已添加的标签 */}
             <div className="flex flex-wrap gap-2 min-h-[32px]">
               {formData.tags.length === 0 ? (
                 <span className="text-sm text-apple-gray-dark">暂无标签</span>
@@ -293,12 +334,13 @@ const SiteFormModal = ({ isOpen, onClose, onSave, site, categories }) => {
                   <span
                     key={index}
                     className="inline-flex items-center gap-1 px-2.5 py-1 bg-apple-blue/10 text-apple-blue 
-                             rounded-lg text-sm group"
+                             rounded-lg text-sm"
                   >
                     {tag}
                     <button
                       type="button"
                       onClick={() => handleRemoveTag(tag)}
+                      disabled={loading}
                       className="hover:bg-apple-blue/20 rounded p-0.5 transition-colors"
                     >
                       <HiOutlineXMark className="w-3.5 h-3.5" />
@@ -320,13 +362,15 @@ const SiteFormModal = ({ isOpen, onClose, onSave, site, categories }) => {
                 type="checkbox"
                 checked={formData.is_active}
                 onChange={(e) => setFormData(prev => ({ ...prev, is_active: e.target.checked }))}
+                disabled={loading}
                 className="sr-only peer"
               />
               <div className="w-11 h-6 bg-apple-gray-dark/30 peer-focus:outline-none rounded-full peer 
-                            peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full 
-                            peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] 
-                            after:start-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 
-                            after:transition-all peer-checked:bg-apple-blue"></div>
+                            peer-checked:after:translate-x-full peer-checked:after:border-white 
+                            after:content-[''] after:absolute after:top-[2px] after:start-[2px] 
+                            after:bg-white after:rounded-full after:h-5 after:w-5 
+                            after:transition-all peer-checked:bg-apple-blue
+                            peer-disabled:opacity-50"></div>
             </label>
           </div>
         </form>
@@ -336,8 +380,9 @@ const SiteFormModal = ({ isOpen, onClose, onSave, site, categories }) => {
           <button
             type="button"
             onClick={handleClose}
+            disabled={loading}
             className="flex-1 py-2.5 bg-apple-gray-light text-apple-black rounded-xl font-medium
-                     hover:bg-apple-gray-medium transition-colors"
+                     hover:bg-apple-gray-medium transition-colors disabled:opacity-50"
           >
             取消
           </button>
